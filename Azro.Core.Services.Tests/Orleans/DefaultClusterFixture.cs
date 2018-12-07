@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Azro.Core.Services.Api.Utils;
+using Azro.Core.Services.Impl.Utils;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Hosting;
@@ -50,7 +52,8 @@ namespace Azro.Core.Services.Tests.Orleans
                 hostBuilder
                     .UseInMemoryReminderService()
                     .AddMemoryGrainStorageAsDefault()
-                    .AddMemoryGrainStorage("MemoryStore");
+                    .AddMemoryGrainStorage("MemoryStore")
+                    .AddGrainExtension<IGrainDeactivator, GrainDeactivator>();
             }
         }
     }

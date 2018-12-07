@@ -2,6 +2,10 @@
 using Azro.Core.Services.Tests.Orleans;
 using System;
 using System.Threading.Tasks;
+using Azro.Core.Services.Api.Utils;
+using Orleans;
+using Orleans.Runtime;
+using Orleans.Storage;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -19,8 +23,6 @@ namespace Azro.Core.Services.Tests
             NickName = "X-99"
         };
 
-        public const string DefaultPlayerId = "X-99";
-
         private readonly ITestOutputHelper _output;
 
         public PlayerTests(ITestOutputHelper output, DefaultClusterFixture fixture) 
@@ -32,7 +34,8 @@ namespace Azro.Core.Services.Tests
         [Fact]
         public async Task AnyOperationShouldThrowExceptionIfPlayerIsNotCreated()
         {
-            var player = GrainFactory.GetGrain<IPlayer>(DefaultPlayerId);
+            var player = GrainFactory.GetGrain<IPlayer>(Guid.NewGuid().ToString());
+            
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await player.Play());
             Assert.NotNull(exception);
             Assert.NotNull(exception.Message);
@@ -52,7 +55,7 @@ namespace Azro.Core.Services.Tests
         [Fact]
         public async Task CreatePlayerTest()
         {
-            var player = GrainFactory.GetGrain<IPlayer>(DefaultPlayerId);
+            var player = GrainFactory.GetGrain<IPlayer>(Guid.NewGuid().ToString());
             await player.Create(DefaultPlayerProfile);
             var playerInfo = await player.GetInfo();
             Assert.NotNull(playerInfo);
@@ -65,7 +68,7 @@ namespace Azro.Core.Services.Tests
         [Fact]
         public async Task LoginPlayerTest()
         {
-            var player = GrainFactory.GetGrain<IPlayer>(DefaultPlayerId);
+            var player = GrainFactory.GetGrain<IPlayer>(Guid.NewGuid().ToString());
             await player.Create(DefaultPlayerProfile);
             var status = await player.GetStatus();
             Assert.Equal(PlayerStatus.Offline, status);
@@ -77,7 +80,7 @@ namespace Azro.Core.Services.Tests
         [Fact]
         public async Task PlayerShouldNotBeAbleToPlayIfItsNotInGame()
         {
-            var player = GrainFactory.GetGrain<IPlayer>(DefaultPlayerId);
+            var player = GrainFactory.GetGrain<IPlayer>(Guid.NewGuid().ToString());
             await player.Create(DefaultPlayerProfile);
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await player.Play());
             Assert.NotNull(exception);
@@ -88,7 +91,7 @@ namespace Azro.Core.Services.Tests
         [Fact]
         public async Task FinishGameShouldThrowExceptionIfInvalidGameIsProvided()
         {
-            var player = GrainFactory.GetGrain<IPlayer>(DefaultPlayerId);
+            var player = GrainFactory.GetGrain<IPlayer>(Guid.NewGuid().ToString());
             await player.Create(DefaultPlayerProfile);
             var exception = await Assert.ThrowsAsync<ArgumentNullException>(async () => await player.FinishGame(null));
             Assert.NotNull(exception);
@@ -98,7 +101,7 @@ namespace Azro.Core.Services.Tests
         [Fact]
         public async Task JoinGameShouldThrowExceptionIfInvalidGameIsProvided()
         {
-            var player = GrainFactory.GetGrain<IPlayer>(DefaultPlayerId);
+            var player = GrainFactory.GetGrain<IPlayer>(Guid.NewGuid().ToString());
             await player.Create(DefaultPlayerProfile);
             var exception = await Assert.ThrowsAsync<ArgumentNullException>(async () => await player.JoinGame(null));
             Assert.NotNull(exception);
